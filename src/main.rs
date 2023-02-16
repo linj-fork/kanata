@@ -1,8 +1,8 @@
 use anyhow::{bail, Result};
 use log::info;
 use simplelog::*;
+use std::env;
 use std::path::PathBuf;
-
 mod cfg;
 mod custom_action;
 mod kanata;
@@ -130,6 +130,9 @@ fn main_impl() -> Result<()> {
     if let (Some(server), Some(nrx)) = (server, nrx) {
         Kanata::start_notification_loop(nrx, server.connections);
     }
+
+    #[cfg(target_os = "linux")]
+    sd_notify::notify(true, &[sd_notify::NotifyState::Ready])?;
 
     Kanata::event_loop(kanata_arc, tx)?;
 
